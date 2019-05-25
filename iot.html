@@ -1,0 +1,280 @@
+<!--<input type="button" value="button name" onclick="window.open('https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_on/off=OFF&Fan_slider=2')" />-->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>IOT</title>
+		<meta charset="utf-8">
+	    <meta http-equiv="refresh" content="10">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<style>
+			.switch {
+			  position: relative;
+			  display: inline-block;
+			  width: 60px;
+			  height: 34px;
+			}
+
+			.switch input {display:none;}
+
+			.slider {
+			  position: absolute;
+			  cursor: pointer;
+			  top: 0;
+			  left: 0;
+			  right: 0;
+			  bottom: 0;
+			  background-color: #ccc;
+			  -webkit-transition: .4s;
+			  transition: .4s;
+			}
+
+			.slider:before {
+			  position: absolute;
+			  content: "";
+			  height: 26px;
+			  width: 26px;
+			  left: 4px;
+			  bottom: 4px;
+			  background-color: white;
+			  -webkit-transition: .4s;
+			  transition: .4s;
+			}
+
+			input:checked + .slider {
+			  background-color: #4CAF50;
+			}
+
+			input:focus + .slider {
+			  box-shadow: 0 0 1px #2196F3;
+			}
+
+			input:checked + .slider:before {
+			  -webkit-transform: translateX(26px);
+			  -ms-transform: translateX(26px);
+			  transform: translateX(26px);
+			}
+
+			/* Rounded sliders */
+			.slider.round {
+			  border-radius: 34px;
+			}
+
+			.slider.round:before {
+			  border-radius: 50%;
+			}
+			
+			
+
+			.slidecontainer {
+				width: 30%;
+			}
+			
+			@media only screen and (max-width: 767px) {
+				.slidecontainer {
+					width: 90%;
+				}
+			}
+
+			.slider1 {
+				-webkit-appearance: none;
+				width: 100%;
+				height: 15px;
+				border-radius: 5px;
+				background: #d3d3d3;
+				outline: none;
+				
+				-webkit-transition: .2s;
+				transition: opacity .2s;
+			}
+
+			.slider1:hover {
+				opacity: 1;
+			}
+
+			.slider1::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				background: #4CAF50;
+				cursor: pointer;
+			}
+
+			.slider1::-moz-range-thumb {
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				background: #4CAF50;
+				cursor: pointer;
+			}
+
+		</style>
+	</head>
+	<body><br><br>
+		<div class="container">
+			<div class="form-horizontal">
+				<div class="form-group">
+				  <label class="control-label col-sm-2 col-xs-5" for="email">Fan Control:</label>
+				  <div class="col-sm-10 col-xs-7">
+					<span style="margin-top:5px;position:absolute;">OFF</span><label class="switch" style="margin-left:60px;">
+					  <input type="checkbox" name="control" id="control" onchange="val()">
+					  <span class="slider round"></span>
+					</label><span style="margin-top:5px;margin-left:10px;position:absolute;">ON</span>
+				  </div>
+				</div>
+				<div class="form-group">
+				  <label class="control-label col-sm-2 col-xs-5" for="email">Fan Condition:</label>
+				  <div class="col-sm-10 col-xs-7">
+					<span style="margin-top:5px;position:absolute;">MANUAL</span><label class="switch" style="margin-left:60px;">
+					  <input type="checkbox" name="control1" id="control1" onchange="val1()">
+					  <span class="slider round"></span>
+					</label><span style="margin-top:5px;margin-left:10px;position:absolute;">AUTO</span>
+				  </div>
+				</div>
+				<div class="form-group">
+				  <label class="control-label col-sm-2 col-xs-5" for="pwd">Regulator:</label>
+				  <div class="col-sm-10 col-xs-7">          
+					<div class="slidecontainer" style="margin-top:10px;">
+						<input type="range" min="0" max="5" value="0" class="slider1" name="slider" id="myRange" onchange="validate(this.value)">
+						<p style="margin-top:5px;">Status: <span id="demo"></span></p>
+					</div>
+				  </div>
+				  <span class="control-label col-sm-5 col-xs-12" style="color:red;" id="conn">.</span>
+				</div>
+			</div>
+			<div style="margin-top:30px;">
+					<h1 style="font-size:20px;">Temperature Readings</h1>
+					<div class="row">				
+						<div class="col-md-4" style="height:500px;overflow:auto;">
+							<table border="1" class="table table-striped" style="margin-top:2px;" id="table">
+								<tr>
+									<th>Temperature</th>
+									<th>Time</th>
+								</tr>
+							</table>		
+						</div>
+						<div class="col-md-8 col-xs-12">
+							<div id="draw" style="height:500px;"></div>
+						</div>
+					</div>
+				</div>
+				</div>
+			<div id="divMsg"></div>
+		</div>
+	</body>
+</html>
+<script>
+	var slider = document.getElementById("myRange");
+	var output = document.getElementById("demo");
+	var templast = "";
+	var df = ["","","","","","","","","","","","","","","","","","","",""];
+	var dg = ["","","","","","","","","","","","","","","","","","","",""];
+	output.innerHTML = slider.value;
+	slider.oninput = function() {
+	  output.innerHTML = this.value;
+	}
+	$(document).ready(function() {
+		var dmJSON = "https://io.adafruit.com/api/groups/Default/receive.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5";
+		$.getJSON( dmJSON, function(data) {
+			templast = parseFloat(data.feeds[2].last_value);
+		   $.each(data.feeds, function(i, f) {
+				if(f.name=="Fan_on/off"){
+					if(f.stream.value=="ON"){
+						document.getElementById("control").checked = true;
+					}
+					if(f.stream.value=="OFF"){
+						document.getElementById("control").checked = false;
+					}
+				}
+				if(f.name=="Fan_condition"){
+					if(f.stream.value=="AUTO"){
+						document.getElementById("control1").checked = true;
+						document.getElementById("conn").innerHTML = "Auto mode is turned on, outside temperature: "+templast.toFixed(2);
+					}
+					if(f.stream.value=="MANUAL"){
+						document.getElementById("control1").checked = false;
+					}
+				}
+				if(f.name=="Fan_slider"){
+					document.getElementById("myRange").value = f.stream.value;
+					document.getElementById("demo").innerHTML = f.stream.value;
+				}
+		 });
+
+		});
+		
+		var temp_read = "https://io.adafruit.com/api/feeds/temperature_readings/data?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5";
+		$.get( temp_read, function(data) {
+			for(var i=0;i<20;i++){
+				var tr="<tr>";
+				var td1="<td>"+data[i]["value"]+"</td>";
+				var td2="<td>"+data[i]["created_at"]+"</td></tr>";
+				$("#table").append(tr+td1+td2); 
+				df[i] = data[i]["created_at"];
+				dg[i] = parseFloat(data[i]["value"]);
+			}
+		
+			google.charts.load('current', {'packages':['corechart']});
+				google.charts.setOnLoadCallback(drawChart);
+				function drawChart() {
+					var data = google.visualization.arrayToDataTable([
+						['Time', 'Temperature'],
+						["'"+df[0]+"'" , dg[0]],["'"+df[1]+"'" , dg[1]],["'"+df[2]+"'" , dg[2]],["'"+df[3]+"'" , dg[3]],["'"+df[4]+"'" , dg[4]],
+						["'"+df[5]+"'" , dg[5]],["'"+df[6]+"'" , dg[6]],["'"+df[7]+"'" , dg[7]],["'"+df[8]+"'" , dg[8]],["'"+df[9]+"'" , dg[9]],
+						["'"+df[10]+"'" , dg[10]],["'"+df[11]+"'" , dg[11]],["'"+df[12]+"'" , dg[12]],["'"+df[13]+"'" , dg[13]],["'"+df[14]+"'" , dg[14]],
+						["'"+df[15]+"'" , dg[15]],["'"+df[16]+"'" , dg[16]],["'"+df[17]+"'" , dg[17]],["'"+df[18]+"'" , dg[18]],["'"+df[19]+"'" , dg[19]],
+					]);
+
+					var options = {
+					title: 'Time Vs Temperature',	
+					legend: { position: 'bottom' }
+					};
+
+					var chart = new google.visualization.LineChart(document.getElementById('draw'));
+
+					chart.draw(data, options);
+				}
+		});
+	});
+	
+	function val(){
+		if(document.getElementById("control").checked == false){
+			$.ajax({url: 'https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_on/off=OFF', type:'GET',success:function(resp){
+				$('#divMsg').html(resp);
+			}});
+		}
+		if(document.getElementById("control").checked == true){
+			$.ajax({url: 'https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_on/off=ON', type:'GET',success:function(resp){
+				$('#divMsg').html(resp);
+			}});
+		}
+	}
+	
+	function val1(){
+		if(document.getElementById("control1").checked == false){
+			$.ajax({url: 'https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_condition=MANUAL', type:'GET',success:function(resp){
+				$('#divMsg').html(resp);
+			}});
+			document.getElementById("conn").innerHTML = ".";
+		}
+		if(document.getElementById("control1").checked == true){
+			
+			$.ajax({url: 'https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_condition=AUTO', type:'GET',success:function(resp){
+				$('#divMsg').html(resp);
+			}});
+			document.getElementById("conn").innerHTML = "Auto mode is turned on, outside temperature: "+templast.toFixed(2);
+		}
+	}
+	
+	function validate(slid){
+		//window.open('https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_slider='+slid);
+		$.ajax({url: 'https://io.adafruit.com/api/groups/Default/send.json?x-aio-key=bdfb03e18b9c45678dfc13d3b6ed45c5&Fan_slider='+slid, type:'GET',success:function(resp){
+			$('#divMsg').html(resp);
+		}});
+	}
+</script>
